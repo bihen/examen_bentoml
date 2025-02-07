@@ -88,7 +88,7 @@ admission_runner = bentoml.sklearn.get(f"admission_{model_name}:latest").to_runn
 scaler = load_scaler()
 
 # Create a service API
-rf_service = bentoml.Service("rf_clf_service", runners=[admission_runner])
+rf_service = bentoml.Service("bianca_van_hemert_admission", runners=[admission_runner])
 
 # Add the JWTAuthMiddleware to the service
 rf_service.add_asgi_middleware(JWTAuthMiddleware)

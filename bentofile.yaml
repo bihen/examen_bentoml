@@ -1,6 +1,4 @@
-service: 
-  name: biancavanhemert_admissions_prediction
-  version: 1.0.0
+service: "src.service:rf_service"
 labels:
   owner: "Bianca van Hemert"
   project: "Admissions Prediction"
@@ -18,8 +16,8 @@ python:
       - numpy
       - pathlib
       - logging
-      - json
       - pydantic
       - pyjwt
       - starlette
       - requests
+      - bentoml
