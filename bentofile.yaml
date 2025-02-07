@@ -3,11 +3,16 @@ labels:
   owner: "Bianca van Hemert"
   project: "Admissions Prediction"
   description: "Predict the chance of admission of a student in a university"
+
+docker:
+  dockerfile_template: "./Dockerfile.template"
+  base_image: python:3.8-slim
+
 include:
   - src/
   - data/
   - config/
-  - model/
+  - models/
 python:
     packages:
       - scikit-learn
@@ -15,7 +20,6 @@ python:
       - joblib
       - numpy
       - pathlib
-      - logging
       - pydantic
       - pyjwt
       - starlette

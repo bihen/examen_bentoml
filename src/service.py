@@ -39,7 +39,7 @@ class JWTAuthMiddleware(BaseHTTPMiddleware):
                 token = token.split()[1]  # Remove 'Bearer ' prefix
                 payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
             except jwt.ExpiredSignatureError:
-                return JSONResponse(status_code=401, content={"detail": "Token has expired"})
+                return {"detail": "Invalid credentials"}, 401
             except jwt.InvalidTokenError:
                 return JSONResponse(status_code=401, content={"detail": "Invalid token"})
 
@@ -96,15 +96,20 @@ rf_service.add_asgi_middleware(JWTAuthMiddleware)
 # Create an API endpoint for the service
 @rf_service.api(input=JSON(), output=JSON())
 def login(credentials: dict) -> dict:
-    username = credentials.get("username")
-    password = credentials.get("password")
+    try:
+        username = credentials.get("username")
+        password = credentials.get("password")
 
-    if username in USERS and USERS[username] == password:
-        token = create_jwt_token(username)
-        return {"token": token}
-    else:
-        return JSONResponse(status_code=401, content={"detail": "Invalid credentials"})
-
+        if username in USERS and USERS[username] == password:
+            token = create_jwt_token(username)
+            return {"token": token}
+        else:
+            return JSONResponse(status_code=401, content={"detail": "Invalid credentials"})
+    except Exception as e:
+        # Log the exception (optional)
+        print(f"Login error: {e}")
+        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    
 # Create an API endpoint for the service
 @rf_service.api(
     input=JSON(pydantic_model=InputModel),

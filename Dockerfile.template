@@ -1,0 +1,13 @@
+{% extends bento_base_template %}
+
+{% block SETUP_PYTHON_ENV %}
+ENV UV_SYSTEM_PYTHON=1
+
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh && \
+    ln -s /root/.local/bin/uv /usr/local/bin/uv && \
+    uv --version
+
+COPY requirements.txt requirements.txt
+RUN uv pip install --no-cache -r requirements.txt
+RUN rm requirements.txt
+{% endblock %}
