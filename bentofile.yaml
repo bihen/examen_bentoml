@@ -1,0 +1,25 @@
+service: 
+  name: biancavanhemert_admissions_prediction
+  version: 1.0.0
+labels:
+  owner: "Bianca van Hemert"
+  project: "Admissions Prediction"
+  description: "Predict the chance of admission of a student in a university"
+include:
+  - src/
+  - data/
+  - config/
+  - model/
+python:
+    packages:
+      - scikit-learn
+      - pandas
+      - joblib
+      - numpy
+      - pathlib
+      - logging
+      - json
+      - pydantic
+      - pyjwt
+      - starlette
+      - requests
