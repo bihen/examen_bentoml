@@ -3,6 +3,7 @@ import bentoml
 from bentoml.io import NumpyNdarray, JSON
 from pydantic import BaseModel, Field
 from starlette.responses import JSONResponse
+from starlette.exceptions import HTTPException
 from starlette.middleware.base import BaseHTTPMiddleware
 import jwt
 from datetime import datetime, timedelta
@@ -58,6 +59,11 @@ class InputModel(BaseModel):
     CGPA: float
     Research: int
     
+# Define your login model
+class LoginModel(BaseModel):
+    username: str
+    password: str
+    
 def load_config():
     """
     Load the model selection config (config.json).
@@ -94,21 +100,20 @@ rf_service = bentoml.Service("bianca_van_hemert_admission", runners=[admission_r
 rf_service.add_asgi_middleware(JWTAuthMiddleware)
 
 # Create an API endpoint for the service
-@rf_service.api(input=JSON(), output=JSON())
-def login(credentials: dict) -> dict:
-    try:
-        username = credentials.get("username")
-        password = credentials.get("password")
+@rf_service.api(input=JSON(pydantic_model=LoginModel), output=JSON())
+def login(credentials: LoginModel, ctx: bentoml.Context) -> dict:
+    username = credentials.username
+    password = credentials.password
 
-        if username in USERS and USERS[username] == password:
-            token = create_jwt_token(username)
-            return {"token": token}
-        else:
-            return JSONResponse(status_code=401, content={"detail": "Invalid credentials"})
-    except Exception as e:
-        # Log the exception (optional)
-        print(f"Login error: {e}")
-        return JSONResponse(status_code=500, content={"detail": "Internal server error"})
+    if username in USERS and USERS[username] == password:
+        token = create_jwt_token(username)
+        return {"token": token}
+    else:
+        # Instead of trying to inject a Starlette Response,
+        # use the context's response attribute to set the status code.
+        ctx.response.status_code = 401
+        return {"detail": "Invalid credentials"}
+
     
 # Create an API endpoint for the service
 @rf_service.api(

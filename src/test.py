@@ -89,6 +89,8 @@ def test_login_success():
 def test_login_failure():
     """Verify that the API returns a 401 error for incorrect user credentials"""
     response = requests.post(LOGIN_URL, json=INVALID_CREDENTIALS)
+    print(f"Response Status Code: {response.status_code}")
+    print(f"Response Body: {response.text}")
     assert response.status_code == 401
 
 
